@@ -155,7 +155,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-
+  'ThePrimeagen/vim-be-good',
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
@@ -568,14 +568,15 @@ require('lazy').setup({
           -- Server settings should go here
         },
       }
-      require('lspconfig').basedpyright.setup {
+      require('lspconfig').pyright.setup {
         settings = {
-          basedpyright = {
+          pyright = {
+            disableOrganizeImports = true, -- Using Ruff
+          },
+          python = {
             analysis = {
-              autoSearchPaths = true,
-              diagnosticMode = 'workspace',
-              useLibraryCodeForTypes = true,
-              typeCheckingMode = 'strict',
+              ignore = { '*' }, -- Using Ruff
+              typeCheckingMode = 'off', -- Using mypy
             },
           },
         },
@@ -659,6 +660,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>rbf', ':Refactor extract_block_to_file')
     end,
   },
+  -- { 'andythigpen/coverage',},
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
@@ -694,6 +696,11 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-calc',
+      'hrsh7th/cmp-emoji',
+      'hrsh7th/cmp-cmdline',
+      'hrsh7th/cmp-nvim-lsp-signature-help',
     },
     config = function()
       -- See `:help cmp`
@@ -770,6 +777,12 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+          { name = 'buffer' },
+          { name = 'calc' },
+          { name = 'emoji' },
+          { name = 'nerdfont' },
+          { name = 'cmdline' },
+          { name = 'nvim-lsp-signature-help' },
         },
       }
     end,
@@ -890,6 +903,9 @@ require('lazy').setup({
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  -- amongst your other plugins
+  { 'akinsho/toggleterm.nvim', version = '*', config = true },
+  -- or
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
