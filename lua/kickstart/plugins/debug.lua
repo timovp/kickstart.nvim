@@ -22,6 +22,7 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
+    'mfussenegger/nvim-dap-python',
     'leoluz/nvim-dap-go',
   },
   keys = function(_, keys)
@@ -64,7 +65,7 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         -- 'delve',
-        'debugpy',
+        -- 'debugpy',
       },
     }
 
@@ -105,13 +106,15 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
-    -- Install golang specific config
-    require('dap-go').setup {
-      delve = {
-        -- On Windows delve must be run attached or it crashes.
-        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
-        detached = vim.fn.has 'win32' == 0,
+    local venv_location = os.getenv 'VIRTUAL_ENV' .. '/bin/python'
+    require('dap-python').setup(venv_location)
+    dap.configurations.python = {
+      {
+        type = 'python',
+        request = 'launch',
+        name = 'Flask run',
+        module = 'flask',
+        args = { 'run', '--port', '8000' },
       },
     }
   end,

@@ -6,6 +6,7 @@ return {
     { '<leader>wr', '<cmd>SessionSearch<CR>', desc = 'Session search' },
     { '<leader>ws', '<cmd>SessionSave<CR>', desc = 'Save session' },
     { '<leader>wa', '<cmd>SessionToggleAutoSave<CR>', desc = 'Toggle autosave' },
+    { '<leader>sa', '<cmd>SessionSearch<CR>', desc = '[S]earch [A]utoSession' },
   },
 
   ---enables autocomplete for opts
