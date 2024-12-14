@@ -88,13 +88,18 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', 'jj', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w><C-j>', { desc = 'Move focus away from terminal and down' })
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w><C-k>', { desc = 'Move focus away from terminal and up' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
-
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+-- accidental page up always confuses me
+vim.keymap.set('x', '<PageDown>', '<cmd>echo "I know, annoying... pagedown"<CR>')
+vim.keymap.set('x', '<PageUp>', '<cmd>echo "I know, annoying... pageup"<CR>')
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
@@ -142,7 +147,7 @@ vim.opt.rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
-require('lazy').setup({
+require('lazy').setup {
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -625,12 +630,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -640,6 +645,8 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-cmdline',
+      'hrsh7th/cmp-buffer',
     },
     config = function()
       -- See `:help cmp`
@@ -713,9 +720,11 @@ require('lazy').setup({
             -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
             group_index = 0,
           },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
+          { name = 'nvim_lsp', priority = 1000 },
+          { name = 'luasnip', priority = 400 },
+          { name = 'path', priority = 300 },
+          { name = 'calc', priority = 500 },
+          { name = 'buffer', priority = 100 },
         },
       }
     end,
@@ -740,6 +749,7 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
+      require('mini.icons').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -795,17 +805,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  {
-    'catppuccin/nvim',
-    name = 'catppuccin',
-    priority = 1000,
-    config = function()
-      require('catppuccin').setup {
-        transparent_background = true,
-      }
-      vim.cmd.colorscheme 'catppuccin-mocha'
-    end,
-  },
+
   {
     'christoomey/vim-tmux-navigator',
     lazy = false,
@@ -814,38 +814,62 @@ require('lazy').setup({
     'tpope/vim-fugitive',
     cmd = { 'Git', 'G' },
   },
+  { 'rafamadriz/friendly-snippets' },
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns',
-  require 'custom.plugins.init',
   require 'custom.plugins.undotree',
+  require 'custom.plugins.catpupuccin',
   require 'custom.plugins.autosession',
   require 'custom.plugins.refactoring',
+  require 'custom.plugins.pretty_python',
+  require 'custom.plugins.noice', -- commented the stuff here.
+
+  -- vim.keymap.set('n', '<M-up>', '<CMD>:m-2<CR>', { desc = 'Move line up' }),
+  -- vim.keymap.set('n', '<M-down>', '<CMD>:m+1<CR>', { desc = 'Move line down' }),
+  vim.keymap.set('n', '<M-j>', '<CMD>:m+1<CR>', { desc = 'Move line down' }),
+  vim.keymap.set('n', '<M-k>', '<CMD>:m-2<CR>', { desc = 'Move line up' }),
+  -- Visual mode mappings
+  vim.keymap.set('v', '<M-j>', ":m '>+1<CR>gv=gv", { desc = 'Move selection down' }),
+  vim.keymap.set('v', '<M-k>', ":m '<-2<CR>gv=gv", { desc = 'Move selection up' }),
   vim.keymap.set('n', '<leader>rl', require('custom.plugins.ruff_telescope').run_ruff_and_show_in_telescope, { noremap = true, silent = true }),
-}, {
-  ui = {
-    -- If you are using a Nerd Font: set icons to an empty table which will use the
-    -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-    icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
+  vim.keymap.set('n', '<leader>x', '<CMD>bd<CR>', { desc = '[X] Buffer Close' }),
+  vim.keymap.set('n', '<leader>p', '"0p', { desc = '[P]ut latest Yank' }),
+  vim.keymap.set('v', '<leader>p', '"0p', { desc = '[P]ut latest Yank' }),
+  vim.keymap.set('x', '<CTRL-s>', '<CMD>:w<CR>', { desc = '[s]ave file' }),
+  vim.keymap.set('n', ';', ':', { desc = '<cmd>' }),
+  -- vim.keymap.set(
+  --   'n',
+  --   '<leader>tsp',
+  --   '<cmd>!tmux split-window -h "cd /home/nlpraag2/projects/advent_of_code/2024/day_2/; source ../.venv/bin/activate; LINE_PROFILE=1 python -m line_profiler day_2_part_1.py; read"<cr>',
+  --   { desc = '[T]mux [S]plit [P]ane' }
+  -- ),
+
+  {
+    ui = {
+      -- If you are using a Nerd Font: set icons to an empty table which will use the
+      -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
+      icons = vim.g.have_nerd_font and {} or {
+        cmd = '⌘',
+        config = '🛠',
+        event = '📅',
+        ft = '📂',
+        init = '⚙',
+        keys = '🗝',
+        plugin = '🔌',
+        runtime = '💻',
+        require = '🌙',
+        source = '📄',
+        start = '🚀',
+        task = '📌',
+        lazy = '💤 ',
+      },
     },
   },
-})
+}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

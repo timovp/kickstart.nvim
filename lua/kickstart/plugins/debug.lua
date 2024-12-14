@@ -116,6 +116,14 @@ return {
         module = 'flask',
         args = { 'run', '--port', '8000' },
       },
+      {
+        type = 'python',
+        request = 'launch',
+        name = 'run script',
+        program = '${file}',
+        -- module = 'flask',
+        -- args = { 'run', '--port', '8000' },
+      },
     }
   end,
 }
