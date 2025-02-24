@@ -123,7 +123,12 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
-
+--  remap tab to control y to accept suggestions.
+-- vim.keymap.set('i', '<C-Y>', 'copilot#Accept("")', {
+--   expr = true,
+--   replace_keycodes = false,
+-- })
+-- vim.g.copilot_no_tab_map = true
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -151,6 +156,7 @@ require('lazy').setup {
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
+  -- 'github/copilot.vim',
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
@@ -416,7 +422,9 @@ require('lazy').setup {
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
           map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-          map('<leader>dh', vim.diagnostic.open_float, '[D]iagnostic [H]over')
+          map('<leader>dh', function()
+            vim.diagnostic.open_float { fosusable = true } -- wrapping in function to add argument for function.
+          end, '[D]iagnostic [H]over')
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
           map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
@@ -505,7 +513,7 @@ require('lazy').setup {
               analysis = {
                 autoSearchPaths = true,
                 diagnosticMode = 'workspace',
-                useLibraryCodeForTypes = true,
+                -- useLibraryCodeForTypes = true,
               },
             },
           },
@@ -720,10 +728,11 @@ require('lazy').setup {
             -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
             group_index = 0,
           },
+          { name = 'copilot' },
           { name = 'nvim_lsp', priority = 1000 },
+          { name = 'calc', priority = 500 },
           { name = 'luasnip', priority = 400 },
           { name = 'path', priority = 300 },
-          { name = 'calc', priority = 500 },
           { name = 'buffer', priority = 100 },
         },
       }
@@ -826,28 +835,39 @@ require('lazy').setup {
   require 'custom.plugins.autosession',
   require 'custom.plugins.refactoring',
   require 'custom.plugins.pretty_python',
-  require 'custom.plugins.noice', -- commented the stuff here.
-
-  -- vim.keymap.set('n', '<M-up>', '<CMD>:m-2<CR>', { desc = 'Move line up' }),
-  -- vim.keymap.set('n', '<M-down>', '<CMD>:m+1<CR>', { desc = 'Move line down' }),
+  {
+    'zbirenbaum/copilot.lua',
+    config = function()
+      require('copilot').setup {
+        suggestion = { enabled = false },
+        panel = { enabled = false },
+      }
+    end,
+  },
+  {
+    'zbirenbaum/copilot-cmp',
+    config = function()
+      require('copilot_cmp').setup()
+    end,
+  },
+  -- Move lines up and down with Alt-j/k
   vim.keymap.set('n', '<M-j>', '<CMD>:m+1<CR>', { desc = 'Move line down' }),
   vim.keymap.set('n', '<M-k>', '<CMD>:m-2<CR>', { desc = 'Move line up' }),
   -- Visual mode mappings
   vim.keymap.set('v', '<M-j>', ":m '>+1<CR>gv=gv", { desc = 'Move selection down' }),
   vim.keymap.set('v', '<M-k>', ":m '<-2<CR>gv=gv", { desc = 'Move selection up' }),
+  -- Ruff linter mappings
   vim.keymap.set('n', '<leader>rl', require('custom.plugins.ruff_telescope').run_ruff_and_show_in_telescope, { noremap = true, silent = true }),
+  -- Close buffer
   vim.keymap.set('n', '<leader>x', '<CMD>bd<CR>', { desc = '[X] Buffer Close' }),
+  -- Put latest yank mappings
   vim.keymap.set('n', '<leader>p', '"0p', { desc = '[P]ut latest Yank' }),
   vim.keymap.set('v', '<leader>p', '"0p', { desc = '[P]ut latest Yank' }),
-  vim.keymap.set('x', '<CTRL-s>', '<CMD>:w<CR>', { desc = '[s]ave file' }),
+  -- save file
+  vim.keymap.set('n', '<C-S>', '<CMD>w<CR>', { desc = '[s]ave file' }),
+  vim.keymap.set('i', '<C-S>', '<Esc><Esc><CMD>w<CR>', { desc = '[s]ave file' }),
+  -- make life easier with ; and : in normal mode
   vim.keymap.set('n', ';', ':', { desc = '<cmd>' }),
-  -- vim.keymap.set(
-  --   'n',
-  --   '<leader>tsp',
-  --   '<cmd>!tmux split-window -h "cd /home/nlpraag2/projects/advent_of_code/2024/day_2/; source ../.venv/bin/activate; LINE_PROFILE=1 python -m line_profiler day_2_part_1.py; read"<cr>',
-  --   { desc = '[T]mux [S]plit [P]ane' }
-  -- ),
-
   {
     ui = {
       -- If you are using a Nerd Font: set icons to an empty table which will use the
