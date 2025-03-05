@@ -106,24 +106,30 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-    local venv_location = os.getenv 'VIRTUAL_ENV' .. '/bin/python'
-    require('dap-python').setup(venv_location)
-    dap.configurations.python = {
-      {
-        type = 'python',
-        request = 'launch',
-        name = 'Flask run',
-        module = 'flask',
-        args = { 'run', '--port', '8000' },
-      },
-      {
-        type = 'python',
-        request = 'launch',
-        name = 'run script',
-        program = '${file}',
-        -- module = 'flask',
-        -- args = { 'run', '--port', '8000' },
-      },
-    }
+    -- because virtual env can be nil value we can try to capture it and set it to empty string
+    -- if it is nil
+    local venv_location = os.getenv 'VIRTUAL_ENV' or ''
+    if venv_location ~= '' then
+      venv_location = venv_location .. '/bin/python'
+      -- local venv_location = os.getenv 'VIRTUAL_ENV' .. '/bin/python'
+      require('dap-python').setup(venv_location)
+      dap.configurations.python = {
+        {
+          type = 'python',
+          request = 'launch',
+          name = 'Flask run',
+          module = 'flask',
+          args = { 'run', '--port', '8000' },
+        },
+        {
+          type = 'python',
+          request = 'launch',
+          name = 'run script',
+          program = '${file}',
+          -- module = 'flask',
+          -- args = { 'run', '--port', '8000' },
+        },
+      }
+    end
   end,
 }
