@@ -728,7 +728,7 @@ require('lazy').setup {
             -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
             group_index = 0,
           },
-          { name = 'copilot' },
+          { name = 'copilot', priority = 500 },
           { name = 'nvim_lsp', priority = 1000 },
           { name = 'calc', priority = 500 },
           { name = 'luasnip', priority = 400 },
@@ -824,6 +824,12 @@ require('lazy').setup {
     cmd = { 'Git', 'G' },
   },
   { 'rafamadriz/friendly-snippets' },
+  {
+    'benomahony/uv.nvim',
+    config = function()
+      require('uv').setup()
+    end,
+  },
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
@@ -866,8 +872,13 @@ require('lazy').setup {
   -- save file
   vim.keymap.set('n', '<C-S>', '<CMD>w<CR>', { desc = '[s]ave file' }),
   vim.keymap.set('i', '<C-S>', '<Esc><Esc><CMD>w<CR>', { desc = '[s]ave file' }),
+  -- go to definiton with F12
+  vim.keymap.set('n', '<F12>', '<CMD>lua vim.lsp.buf.definition()<CR>', { desc = '[G]oto [D]efinition' }),
+
+  vim.keymap.set('i', '<F12>', '<Esc><CMD>lua vim.lsp.buf.definition()<CR>', { desc = '[G]oto [D]efinition' }),
   -- make life easier with ; and : in normal mode
   vim.keymap.set('n', ';', ':', { desc = '<cmd>' }),
+  vim.keymap.set('n', '<enter>', ':<up>', { desc = 'Previous command' }),
   {
     ui = {
       -- If you are using a Nerd Font: set icons to an empty table which will use the
