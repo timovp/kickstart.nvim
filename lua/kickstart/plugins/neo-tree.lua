@@ -11,7 +11,8 @@ return {
   },
   lazy = false,
   keys = {
-    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '\\', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
+    { '<leader>e', ':Neotree toggle<CR>', desc = 'NeoTree toggle`', silent = true },
   },
   opts = {
     filesystem = {
@@ -19,6 +20,9 @@ return {
         mappings = {
           ['\\'] = 'close_window',
         },
+      },
+      filtered_items = {
+        visible = true,
       },
     },
   },
