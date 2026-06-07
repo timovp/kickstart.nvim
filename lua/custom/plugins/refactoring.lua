@@ -3,6 +3,7 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim',
     'nvim-treesitter/nvim-treesitter',
+    'lewis6991/async.nvim', -- required since refactoring.nvim moved the async module out
   },
   config = function()
     require('refactoring').setup()
