@@ -124,6 +124,13 @@ return {
         {
           type = 'python',
           request = 'launch',
+          name = 'Launch Flask App (with SSL)',
+          module = 'flask',
+          args = { 'run', '--cert=./ssl/local-host.cert', '--key=./ssl/local-host.pem', '--no-reload', '--no-debugger', '--host=0.0.0.0', '--port=8000' },
+        },
+        {
+          type = 'python',
+          request = 'launch',
           name = 'run script',
           program = '${file}',
           -- module = 'flask',
